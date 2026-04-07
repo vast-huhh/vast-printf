@@ -1,5 +1,7 @@
 # Vast-Print
 
+[![Build](https://github.com/vast-huhh/vast-printf/actions/workflows/build.yml/badge.svg)](https://github.com/vast-huhh/vast-printf/actions/workflows/build.yml)
+
 `Vast-Print` 是一个基于 `.NET 8 + WPF` 的 Windows 桌面批量打印工具。它面向“把一批文件按顺序送去打印”这个场景，支持导入文件、扫描文件夹、按文件类型过滤、暂停/继续/取消任务、记录打印历史和日志。
 
 ## 这是什么工程
