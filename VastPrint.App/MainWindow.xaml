@@ -1,0 +1,421 @@
+<Window x:Class="VastPrint.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Vast-Print 多文件打印"
+        Height="860"
+        Width="1440"
+        MinHeight="760"
+        MinWidth="1240"
+        WindowStartupLocation="CenterScreen"
+        AllowDrop="True"
+        PreviewDragOver="Window_PreviewDragOver"
+        Drop="Window_Drop">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Padding="18"
+                Background="#0B1220"
+                CornerRadius="18">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock FontSize="26"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               Text="Vast-Print 多文件打印" />
+                    <TextBlock Margin="0,8,0,0"
+                               Foreground="#D0D5DD"
+                               Text="批量导入文件与文件夹，按类型筛选，并通过内置渲染完成打印。支持直接拖拽文件或目录到窗口。" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            HorizontalAlignment="Right">
+                    <Border Padding="14,10"
+                            Margin="0,0,0,8"
+                            Background="#1D2939"
+                            CornerRadius="12">
+                        <StackPanel>
+                            <TextBlock Foreground="#98A2B3" Text="队列摘要" />
+                            <TextBlock Margin="0,4,0,0"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="White"
+                                       Text="{Binding QueueSummary}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="14,10"
+                            Background="#1D2939"
+                            CornerRadius="12">
+                        <StackPanel>
+                            <TextBlock Foreground="#98A2B3" Text="历史摘要" />
+                            <TextBlock Margin="0,4,0,0"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="White"
+                                       Text="{Binding HistorySummary}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ScrollViewer Grid.Column="0"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="0,0,4,0">
+                    <Border Padding="16"
+                            Margin="0,0,0,16"
+                            Background="{StaticResource PanelBackgroundBrush}"
+                            BorderBrush="{StaticResource PanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="16">
+                        <StackPanel>
+                            <TextBlock FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Text="打印设备" />
+                            <TextBlock Margin="0,6,0,12"
+                                       Foreground="{StaticResource MutedTextBrush}"
+                                       Text="选择打印机，并打开打印机属性或页面设置。" />
+
+                            <TextBlock Margin="0,0,0,6" Text="当前打印机" />
+                            <ComboBox Height="38"
+                                      ItemsSource="{Binding Printers}"
+                                      SelectedItem="{Binding SelectedPrinter, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <Grid Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0"
+                                        Margin="0,0,8,8"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding OpenPrinterPropertiesCommand}"
+                                        Content="打印机属性" />
+                                <Button Grid.Column="1"
+                                        Margin="0,0,0,8"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding OpenPageSetupCommand}"
+                                        Content="页面设置" />
+                            </Grid>
+
+                            <Border Margin="0,8,0,0"
+                                    Padding="12"
+                                    Background="#F8FAFC"
+                                    CornerRadius="12">
+                                <TextBlock TextWrapping="Wrap"
+                                           Foreground="{StaticResource MutedTextBrush}"
+                                           Text="{Binding PageSetupSummary}" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="16"
+                            Margin="0,0,0,16"
+                            Background="{StaticResource PanelBackgroundBrush}"
+                            BorderBrush="{StaticResource PanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="16">
+                        <StackPanel>
+                            <TextBlock FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Text="文件导入" />
+                            <TextBlock Margin="0,6,0,12"
+                                       Foreground="{StaticResource MutedTextBrush}"
+                                       Text="文件选择支持手工挑选，文件夹导入将按设置里勾选的类型过滤，也支持拖拽导入。" />
+
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Button Grid.Row="0"
+                                        Grid.Column="0"
+                                        Margin="0,0,8,8"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding AddFilesCommand}"
+                                        Content="添加文件" />
+                                <Button Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="0,0,0,8"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding AddFolderCommand}"
+                                        Content="添加文件夹" />
+                                <Button Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="0,0,8,8"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding OpenSettingsCommand}"
+                                        Content="设置" />
+                                <Button Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,0,0,8"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding ClearQueueCommand}"
+                                        Content="清空队列" />
+                                <Button Grid.Row="2"
+                                        Grid.Column="0"
+                                        Margin="0,0,8,8"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding MoveUpCommand}"
+                                        Content="上移选中" />
+                                <Button Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="0,0,0,8"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding MoveDownCommand}"
+                                        Content="下移选中" />
+                                <Button Grid.Row="3"
+                                        Grid.Column="0"
+                                        Margin="0,0,8,0"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding RetryFailedCommand}"
+                                        Content="重试失败项" />
+                                <Button Grid.Row="3"
+                                        Grid.Column="1"
+                                        Margin="0,0,0,0"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding RemoveSelectedItemCommand}"
+                                        Content="移除选中" />
+                            </Grid>
+
+                            <TextBlock Margin="0,8,0,4"
+                                       FontWeight="SemiBold"
+                                       Text="文件夹筛选类型" />
+                            <Border Padding="12"
+                                    Background="#F8FAFC"
+                                    CornerRadius="12">
+                                <TextBlock TextWrapping="Wrap"
+                                           Foreground="{StaticResource MutedTextBrush}"
+                                           Text="{Binding EnabledTypesSummary}" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="16"
+                            Background="{StaticResource PanelBackgroundBrush}"
+                            BorderBrush="{StaticResource PanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="16">
+                        <StackPanel>
+                            <TextBlock FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Text="本地存储" />
+                            <TextBlock Margin="0,8,0,0"
+                                       TextWrapping="Wrap"
+                                       Foreground="{StaticResource MutedTextBrush}"
+                                       Text="{Binding StorageSummary}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.Column="2"
+                    Padding="16"
+                    Background="{StaticResource PanelBackgroundBrush}"
+                    BorderBrush="{StaticResource PanelBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Padding="14"
+                            Background="#F8FAFC"
+                            BorderBrush="{StaticResource PanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Text="任务控制" />
+                                    <TextBlock Margin="0,4,0,0"
+                                               Foreground="{StaticResource MutedTextBrush}"
+                                               Text="把常用打印操作固定在队列上方，导入和执行分区更清晰。" />
+                                </StackPanel>
+                            </Grid>
+
+                            <UniformGrid Grid.Row="2"
+                                         Columns="5">
+                                <Button Margin="0,0,8,0"
+                                        Command="{Binding StartPrintCommand}"
+                                        Content="开始打印" />
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding StartSelectedPrintCommand}"
+                                        Content="打印选中项" />
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding PausePrintCommand}"
+                                        Content="暂停打印" />
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding ResumePrintCommand}"
+                                        Content="继续打印" />
+                                <Button Margin="0"
+                                        Style="{StaticResource DangerButtonStyle}"
+                                        Command="{Binding CancelPrintCommand}"
+                                        Content="取消任务" />
+                            </UniformGrid>
+                        </Grid>
+                    </Border>
+
+                    <TabControl Grid.Row="2">
+                        <TabItem Header="打印队列">
+                            <Grid Margin="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Text="打印队列" />
+                                    <TextBlock Margin="0,6,0,0"
+                                               Foreground="{StaticResource MutedTextBrush}"
+                                               Text="队列按顺序串行执行。暂停只会在当前文件完成后生效，取消会尽量在页边界停止。按住 Ctrl 可多选文件。" />
+                                </StackPanel>
+
+                                <DataGrid Grid.Row="2"
+                                          x:Name="QueueDataGrid"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding QueueItems}"
+                                          SelectedItem="{Binding SelectedQueueItem}"
+                                          SelectionMode="Extended"
+                                          SelectionChanged="QueueDataGrid_SelectionChanged"
+                                          GridLinesVisibility="Horizontal"
+                                          HeadersVisibility="Column"
+                                          RowHeaderWidth="0"
+                                          BorderThickness="0"
+                                          Background="Transparent">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Width="2.1*"
+                                                            Binding="{Binding FileName}"
+                                                            Header="文件名" />
+                                        <DataGridTextColumn Width="0.8*"
+                                                            Binding="{Binding Extension}"
+                                                            Header="类型" />
+                                        <DataGridTextColumn Width="1.1*"
+                                                            Binding="{Binding StatusText}"
+                                                            Header="状态" />
+                                        <DataGridTextColumn Width="0.7*"
+                                                            Binding="{Binding PageCount}"
+                                                            Header="页数" />
+                                        <DataGridTextColumn Width="2*"
+                                                            Binding="{Binding Note}"
+                                                            Header="备注" />
+                                        <DataGridTextColumn Width="2.7*"
+                                                            Binding="{Binding FilePath}"
+                                                            Header="路径" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </TabItem>
+
+                        <TabItem Header="打印历史">
+                            <Grid Margin="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Text="打印历史" />
+                                    <TextBlock Margin="0,6,0,0"
+                                               Foreground="{StaticResource MutedTextBrush}"
+                                               Text="每次文件级打印结果都会写入本地历史，便于追踪失败原因和页数。" />
+                                </StackPanel>
+
+                                <DataGrid Grid.Row="2"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding PrintHistory}"
+                                          SelectionMode="Single"
+                                          GridLinesVisibility="Horizontal"
+                                          HeadersVisibility="Column"
+                                          RowHeaderWidth="0"
+                                          BorderThickness="0"
+                                          Background="Transparent">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Width="1.2*"
+                                                            Binding="{Binding TimestampText}"
+                                                            Header="时间" />
+                                        <DataGridTextColumn Width="1.8*"
+                                                            Binding="{Binding FileName}"
+                                                            Header="文件名" />
+                                        <DataGridTextColumn Width="1.2*"
+                                                            Binding="{Binding PrinterName}"
+                                                            Header="打印机" />
+                                        <DataGridTextColumn Width="0.8*"
+                                                            Binding="{Binding StatusText}"
+                                                            Header="结果" />
+                                        <DataGridTextColumn Width="0.7*"
+                                                            Binding="{Binding PageCount}"
+                                                            Header="页数" />
+                                        <DataGridTextColumn Width="2*"
+                                                            Binding="{Binding Message}"
+                                                            Header="说明" />
+                                        <DataGridTextColumn Width="2.5*"
+                                                            Binding="{Binding FilePath}"
+                                                            Header="路径" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,35 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+artifacts/
+.build-out*/
+
+# Local caches and package downloads
+.dotnet-cli-home/
+.nuget-packages/
+local-packages/
+installer/prereqs/
+
+# Optional local-only files not required by the build
+8x4v1-ypkda-001.ico
+windows-multi-file-print-plan.md
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# Temp files
+*.tmp
+*.temp
+*.cache
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
